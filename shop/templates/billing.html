@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billing</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:30px;
+    font-family:Arial, sans-serif;
+    background:#f2f2f2;
+}
+
+.container{
+    width:90%;
+    max-width:1000px;
+    margin:auto;
+    display:flex;
+    gap:30px;
+}
+
+.left{
+    width:45%;
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.right{
+    width:55%;
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+label{
+    font-weight:bold;
+}
+
+input,textarea{
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    margin-bottom:18px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    font-size:16px;
+}
+
+textarea{
+    resize:none;
+    height:80px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table,th,td{
+    border:1px solid #ccc;
+}
+
+th,td{
+    padding:10px;
+    text-align:center;
+}
+
+.total{
+    margin-top:20px;
+    text-align:right;
+    font-size:22px;
+    font-weight:bold;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:20px;
+    font-size:18px;
+    background:green;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+
+@media print {
+    button {
+        display: none;
+    }
+}
+
+
+button:hover{
+    background:darkgreen;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<div class="left">
+
+<h2>Billing Details</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<label>Customer Name</label>
+
+<input type="text"
+       name="name"
+       placeholder="Enter your name"
+       required>
+
+<label>Phone Number</label>
+
+<input type="text"
+       name="phone"
+       placeholder="Enter phone number"
+       required>
+
+<label>Address</label>
+
+<textarea
+name="address"
+placeholder="Enter your address"
+required></textarea>
+
+<button type="button" onclick="payNow()">Pay</button>
+
+</form>
+
+</div>
+
+<div class="right">
+
+<h2>Order Summary</h2>
+
+<table>
+
+<tr>
+<th>Product</th>
+<th>Qty</th>
+<th>Total</th>
+</tr>
+
+{% for i in cart %}
+
+<tr>
+
+<td>{{ i.product.name }}</td>
+
+<td>{{ i.quantity }} Kg</td>
+
+<td>₹{{ i.total }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<div class="total">
+
+Grand Total : ₹{{ grandtotal }}
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script>
+function payNow() {
+    alert("✅ Payment Done Successfully!");
+
+    // Open print dialog
+    window.print();
+}
+</script>
+
+</body>
+</html>

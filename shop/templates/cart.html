@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Cart</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f2f2f2;
+}
+
+.container{
+    width:90%;
+    max-width:1200px;
+    margin:40px auto;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:25px;
+    color:#333;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:#fff;
+    box-shadow:0 0 10px rgba(0,0,0,.15);
+}
+
+th{
+    background:#222;
+    color:white;
+    padding:15px;
+}
+
+td{
+    padding:15px;
+    text-align:center;
+    border-bottom:1px solid #ddd;
+}
+
+img{
+    width:90px;
+    height:90px;
+    object-fit:cover;
+    border-radius:8px;
+}
+
+input[type="number"]{
+    width:70px;
+    padding:6px;
+    text-align:center;
+}
+
+.update{
+    background:green;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:5px;
+    cursor:pointer;
+    margin-top:5px;
+}
+
+.update:hover{
+    background:darkgreen;
+}
+
+.delete{
+    background:red;
+    color:white;
+    text-decoration:none;
+    padding:8px 14px;
+    border-radius:5px;
+}
+
+.delete:hover{
+    background:darkred;
+}
+
+.summary{
+    width:320px;
+    margin-left:auto;
+    margin-top:25px;
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 0 10px rgba(0,0,0,.15);
+}
+
+.summary h2{
+    margin-bottom:15px;
+}
+
+.summary h3{
+    margin-bottom:20px;
+}
+
+.checkout{
+    display:block;
+    text-align:center;
+    background:#007bff;
+    color:white;
+    text-decoration:none;
+    padding:12px;
+    border-radius:5px;
+}
+
+.checkout:hover{
+    background:#0056b3;
+}
+
+.back{
+    display:inline-block;
+    margin-top:25px;
+    background:#444;
+    color:white;
+    text-decoration:none;
+    padding:10px 20px;
+    border-radius:5px;
+}
+
+.back:hover{
+    background:black;
+}
+
+.empty{
+    text-align:center;
+    padding:50px;
+    background:white;
+    box-shadow:0 0 10px rgba(0,0,0,.1);
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>Shopping Cart</h1>
+
+{% if cart %}
+
+<table>
+
+<tr>
+<th>Image</th>
+<th>Product</th>
+<th>Price</th>
+<th>Quantity</th>
+<th>Total</th>
+<th>Action</th>
+</tr>
+
+{% for i in cart %}
+
+<tr>
+
+<td>
+<img src="{{ i.product.image.url }}" alt="">
+</td>
+
+<td>
+{{ i.product.name }}
+</td>
+
+<td>
+₹{{ i.product.price }}
+</td>
+
+<td>
+
+<form method="POST" action="{% url 'updatecart' i.id %}">
+{% csrf_token %}
+
+<input
+type="number"
+name="quantity"
+value="{{ i.quantity }}"
+min="1"
+step="1">
+
+<br><br>
+
+<button class="update">
+Update
+</button>
+
+</form>
+
+</td>
+
+<td>
+
+₹{{ i.total }}
+
+</td>
+
+<td>
+
+<a class="delete"
+href="{% url 'deletecart' i.id %}">
+Delete
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<div class="summary">
+
+<h2>Cart Summary</h2>
+
+<h3>Grand Total : ₹{{ grandtotal }}</h3>
+
+<a href="{% url 'billing' %}" class="checkout">
+Proceed To Checkout
+</a>
+
+</div>
+
+{% else %}
+
+<div class="empty">
+
+<h2>Your Cart is Empty</h2>
+
+<br>
+
+<a href="{% url 'display' %}" class="back">
+Continue Shopping
+</a>
+
+</div>
+
+{% endif %}
+
+{% if cart %}
+
+<a href="{% url 'display' %}" class="back">
+Continue Shopping
+</a>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Product | ShopEase Admin</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ============================================================
+   TOKENS — fresh grocery palette: leaf green primary,
+   pale green surfaces, warm orange for action & accents.
+   ============================================================ */
+:root{
+    --green:#2E7D32;
+    --green-dark:#215E26;
+    --green-light:#E8F5E9;
+    --orange:#FF9800;
+    --orange-dark:#E68900;
+    --white:#ffffff;
+    --gray:#F5F6F8;
+    --line:#E1E7E1;
+    --ink:#22281F;
+    --ink-soft:#6B7178;
+    --danger:#E0472C;
+
+    --radius-lg:28px;
+    --radius-md:16px;
+    --radius-sm:12px;
+    --shadow-card:0 30px 70px rgba(23,63,44,.16);
+    --shadow-soft:0 8px 20px rgba(23,63,44,.08);
+    --ease:cubic-bezier(.22,1,.36,1);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Inter', Arial, sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 20px;
+
+    background:
+        radial-gradient(circle at 12% 20%, rgba(46,125,50,.10), transparent 45%),
+        radial-gradient(circle at 88% 78%, rgba(255,152,0,.12), transparent 42%),
+        linear-gradient(160deg, #F3FBF3 0%, var(--gray) 55%, #FDF6EC 100%);
+}
+
+h1, .btn, .field-label{ font-family:'Baloo 2', sans-serif; }
+
+/* ============ AMBIENT BACKGROUND ============ */
+
+.blur-circle{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(4px);
+    z-index:0;
+    pointer-events:none;
+}
+.blur-circle.c1{
+    width:280px; height:280px;
+    background:rgba(46,125,50,.14);
+    top:-90px; left:-90px;
+    animation:driftA 14s ease-in-out infinite;
+}
+.blur-circle.c2{
+    width:220px; height:220px;
+    background:rgba(255,152,0,.16);
+    bottom:-70px; right:-70px;
+    animation:driftB 16s ease-in-out infinite;
+}
+.blur-circle.c3{
+    width:140px; height:140px;
+    background:rgba(46,125,50,.10);
+    bottom:10%; left:4%;
+    animation:driftA 12s ease-in-out infinite reverse;
+}
+
+@keyframes driftA{
+    0%,100%{ transform:translate(0,0); }
+    50%{ transform:translate(24px,18px); }
+}
+@keyframes driftB{
+    0%,100%{ transform:translate(0,0); }
+    50%{ transform:translate(-20px,-16px); }
+}
+
+.leaf{
+    position:fixed;
+    font-size:1.6rem;
+    opacity:.5;
+    z-index:0;
+    pointer-events:none;
+    animation:floatLeaf 9s ease-in-out infinite;
+}
+.leaf.l1{ top:12%; left:8%; animation-delay:0s; }
+.leaf.l2{ top:22%; right:10%; font-size:1.3rem; animation-delay:1.5s; }
+.leaf.l3{ bottom:16%; right:14%; animation-delay:3s; }
+.leaf.l4{ bottom:26%; left:10%; font-size:1.2rem; animation-delay:4.5s; }
+
+@keyframes floatLeaf{
+    0%,100%{ transform:translateY(0) rotate(0deg); }
+    50%{ transform:translateY(-18px) rotate(12deg); }
+}
+
+@media (prefers-reduced-motion:reduce){
+    .blur-circle, .leaf{ animation:none !important; }
+}
+
+/* ============ CARD ============ */
+
+.product-card{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:460px;
+    background:rgba(255,255,255,.78);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,.6);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-card);
+    padding:clamp(28px,5vw,44px);
+    animation:cardEnter .7s var(--ease) both;
+}
+
+@keyframes cardEnter{
+    from{ opacity:0; transform:translateY(26px) scale(.97); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+}
+
+.card-head{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.veggie-cluster{
+    font-size:2.6rem;
+    margin-bottom:10px;
+    line-height:1;
+    animation:bounceIn .8s var(--ease) .1s both;
+}
+
+@keyframes bounceIn{
+    0%{ opacity:0; transform:scale(.6) translateY(-10px); }
+    60%{ opacity:1; transform:scale(1.08) translateY(0); }
+    100%{ transform:scale(1); }
+}
+
+.card-head h1{
+    font-size:1.6rem;
+    font-weight:800;
+    color:var(--green-dark);
+    margin-bottom:6px;
+}
+
+.card-head p{
+    color:var(--ink-soft);
+    font-size:.92rem;
+}
+
+/* ============ FORM ============ */
+
+.field-group{
+    position:relative;
+    margin-bottom:22px;
+    opacity:0;
+    transform:translateY(16px);
+    animation:fieldIn .55s var(--ease) forwards;
+}
+.field-group:nth-of-type(1){ animation-delay:.18s; }
+.field-group:nth-of-type(2){ animation-delay:.28s; }
+.field-group:nth-of-type(3){ animation-delay:.38s; }
+
+@keyframes fieldIn{
+    to{ opacity:1; transform:translateY(0); }
+}
+
+.input-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+    background:var(--white);
+    border:1.6px solid var(--line);
+    border-radius:var(--radius-md);
+    transition:border-color .25s var(--ease), box-shadow .25s var(--ease), transform .25s var(--ease);
+}
+
+.input-wrap:hover{ transform:translateY(-1px); }
+
+.input-wrap .field-icon{
+    width:46px;
+    text-align:center;
+    font-size:1.05rem;
+    color:var(--green);
+    flex-shrink:0;
+}
+
+.input-wrap input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:transparent;
+    font-family:'Inter', sans-serif;
+    font-size:.98rem;
+    color:var(--ink);
+    padding:20px 14px 8px 0;
+}
+
+.field-label{
+    position:absolute;
+    left:46px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:.95rem;
+    color:var(--ink-soft);
+    font-weight:600;
+    pointer-events:none;
+    transition:all .2s var(--ease);
+    background:transparent;
+}
+
+/* Floating label: rises when focused or filled (placeholder=" " trick) */
+.input-wrap input:focus ~ .field-label,
+.input-wrap input:not(:placeholder-shown) ~ .field-label{
+    top:10px;
+    left:46px;
+    font-size:.7rem;
+    color:var(--green);
+    font-weight:700;
+    letter-spacing:.3px;
+}
+
+.input-wrap:focus-within{
+    border-color:var(--green);
+    box-shadow:0 0 0 4px rgba(46,125,50,.14), var(--shadow-soft);
+}
+
+/* Gentle validation styling — only reacts once the user has typed */
+.input-wrap input:not(:placeholder-shown):invalid{
+    border-color:var(--danger);
+}
+.field-group:has(input:not(:placeholder-shown):invalid) .input-wrap{
+    border-color:var(--danger);
+}
+.field-group:has(input:not(:placeholder-shown):invalid) .field-icon{
+    color:var(--danger);
+}
+
+/* ============ IMAGE UPLOAD DROPZONE ============ */
+
+.upload-zone{
+    position:relative;
+    border:2px dashed #BFD9C2;
+    border-radius:var(--radius-md);
+    background:var(--green-light);
+    padding:26px 16px;
+    text-align:center;
+    cursor:pointer;
+    transition:.3s var(--ease);
+    outline-offset:4px;
+}
+
+.upload-zone:hover, .upload-zone:focus-visible{
+    border-color:var(--green);
+    background:#DFF3E0;
+    box-shadow:0 0 0 6px rgba(46,125,50,.08);
+    transform:translateY(-2px);
+}
+
+.upload-zone.drag-over{
+    border-color:var(--orange);
+    background:#FFF3E0;
+    box-shadow:0 0 0 6px rgba(255,152,0,.12);
+}
+
+.upload-zone.has-image{
+    padding:14px;
+    background:var(--white);
+}
+
+.upload-icon{
+    font-size:1.9rem;
+    margin-bottom:8px;
+    display:block;
+}
+
+.upload-text{
+    font-weight:700;
+    color:var(--green-dark);
+    font-size:.95rem;
+    margin-bottom:2px;
+}
+
+.upload-hint{
+    color:var(--ink-soft);
+    font-size:.78rem;
+}
+
+.upload-zone input[type="file"]{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+    width:100%;
+    height:100%;
+}
+
+.preview-wrap{
+    display:none;
+    align-items:center;
+    gap:14px;
+    text-align:left;
+}
+.upload-zone.has-image .preview-wrap{ display:flex; }
+.upload-zone.has-image .upload-placeholder{ display:none; }
+
+.preview-thumb{
+    width:64px;
+    height:64px;
+    border-radius:var(--radius-sm);
+    object-fit:cover;
+    box-shadow:var(--shadow-soft);
+    flex-shrink:0;
+}
+
+.preview-info{ overflow:hidden; }
+.preview-name{
+    font-weight:700;
+    font-size:.88rem;
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.preview-change{
+    font-size:.76rem;
+    color:var(--green);
+    font-weight:600;
+    margin-top:2px;
+}
+
+/* ============ BUTTONS ============ */
+
+.btn-row{
+    display:flex;
+    gap:14px;
+    margin-top:30px;
+}
+
+.btn{
+    position:relative;
+    overflow:hidden;
+    flex:1;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-weight:700;
+    font-size:.96rem;
+    padding:15px 20px;
+    border-radius:999px;
+    border:none;
+    cursor:pointer;
+    transition:transform .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease);
+}
+
+.btn:active{ transform:scale(.97); }
+
+.btn-primary{
+    background:linear-gradient(135deg, var(--green), var(--green-dark));
+    color:var(--white);
+    box-shadow:0 12px 26px rgba(46,125,50,.32);
+    flex:1.4;
+}
+.btn-primary:hover{
+    transform:translateY(-3px) scale(1.03);
+    box-shadow:0 16px 32px rgba(46,125,50,.4), 0 0 0 4px rgba(46,125,50,.14);
+}
+
+.btn-secondary{
+    background:var(--white);
+    color:var(--ink);
+    border:1.6px solid var(--line);
+}
+.btn-secondary:hover{
+    transform:translateY(-3px) scale(1.03);
+    border-color:var(--orange);
+    color:var(--orange-dark);
+}
+
+.btn.is-loading{ pointer-events:none; opacity:.85; }
+.btn.is-loading .btn-label{ opacity:0; }
+
+.btn-spinner{
+    position:absolute;
+    width:18px; height:18px;
+    border:2.5px solid rgba(255,255,255,.4);
+    border-top-color:var(--white);
+    border-radius:50%;
+    opacity:0;
+    animation:spin .7s linear infinite;
+}
+.btn.is-loading .btn-spinner{ opacity:1; }
+
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+.ripple{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,.5);
+    transform:scale(0);
+    animation:rippleAnim .55s var(--ease);
+    pointer-events:none;
+}
+.btn-secondary .ripple{ background:rgba(46,125,50,.18); }
+
+@keyframes rippleAnim{
+    to{ transform:scale(2.6); opacity:0; }
+}
+
+/* Visible keyboard focus everywhere */
+a:focus-visible, button:focus-visible, input:focus-visible, .upload-zone:focus-visible{
+    outline:3px solid var(--orange);
+    outline-offset:2px;
+}
+
+/* ============ RESPONSIVE ============ */
+
+@media (max-width:480px){
+    .product-card{ border-radius:22px; padding:26px 20px; }
+    .btn-row{ flex-direction:column; }
+    .btn-primary{ flex:1; order:1; }
+    .btn-secondary{ order:2; }
+    .veggie-cluster{ font-size:2.2rem; }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- Ambient decoration -->
+<div class="blur-circle c1" aria-hidden="true"></div>
+<div class="blur-circle c2" aria-hidden="true"></div>
+<div class="blur-circle c3" aria-hidden="true"></div>
+<span class="leaf l1" aria-hidden="true">🍃</span>
+<span class="leaf l2" aria-hidden="true">🌿</span>
+<span class="leaf l3" aria-hidden="true">🍃</span>
+<span class="leaf l4" aria-hidden="true">🌿</span>
+
+<main class="product-card">
+    <div class="card-head">
+        <div class="veggie-cluster" aria-hidden="true">🥦🍅🥕</div>
+        <h1>Add New Product</h1>
+        <p>Keep your grocery inventory fresh and organized.</p>
+    </div>
+
+    <form action="{% url 'add' %}" method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="field-group">
+            <div class="input-wrap">
+                <span class="field-icon" aria-hidden="true">🏷️</span>
+                <input type="text" name="n" id="productName" placeholder=" " required autocomplete="off">
+                <label class="field-label" for="productName">Product Name</label>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <div class="input-wrap">
+                <span class="field-icon" aria-hidden="true">₹</span>
+                <input type="text" name="p" id="productPrice" placeholder=" " inputmode="decimal" pattern="[0-9]*\.?[0-9]*" required autocomplete="off">
+                <label class="field-label" for="productPrice">Price</label>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload product image">
+                <div class="upload-placeholder">
+                    <span class="upload-icon" aria-hidden="true">📷</span>
+                    <div class="upload-text">Upload Product Image</div>
+                    <div class="upload-hint">Drag &amp; drop or click to browse (JPG, PNG)</div>
+                </div>
+                <div class="preview-wrap">
+                    <img class="preview-thumb" id="previewThumb" alt="">
+                    <div class="preview-info">
+                        <div class="preview-name" id="previewName"></div>
+                        <div class="preview-change">Click to change image</div>
+                    </div>
+                </div>
+                <input type="file" name="image" id="productImage" accept="image/*" required aria-label="Product image file">
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <span class="btn-label">➕ Add Product</span>
+                <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
+            <a href="{% url 'display' %}" class="btn btn-secondary" id="backBtn">⬅ Back</a>
+        </div>
+    </form>
+</main>
+
+<script>
+// ---- Ripple effect on buttons ----
+document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', function(e){
+        const rect = this.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        const size = Math.max(rect.width, rect.height);
+        ripple.className = 'ripple';
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        this.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 550);
+    });
+});
+
+// ---- Image upload: click, keyboard, drag & drop, preview ----
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('productImage');
+const previewThumb = document.getElementById('previewThumb');
+const previewName = document.getElementById('previewName');
+
+function showPreview(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        previewThumb.src = e.target.result;
+        previewName.textContent = file.name;
+        uploadZone.classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+}
+
+fileInput.addEventListener('change', () => {
+    if(fileInput.files && fileInput.files[0]){
+        showPreview(fileInput.files[0]);
+    }
+});
+
+uploadZone.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        fileInput.click();
+    }
+});
+
+['dragenter','dragover'].forEach(evt => {
+    uploadZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('drag-over');
+    });
+});
+
+['dragleave','drop'].forEach(evt => {
+    uploadZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+    });
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if(file){
+        fileInput.files = e.dataTransfer.files;
+        showPreview(file);
+    }
+});
+
+// ---- Loading state while the form submits to Django ----
+document.querySelector('form').addEventListener('submit', () => {
+    document.getElementById('submitBtn').classList.add('is-loading');
+});
+</script>
+
+</body>
+</html>
